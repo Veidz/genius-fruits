@@ -8,8 +8,12 @@ class Game extends Component {
 
     this.state = {
       fruitSelected: "",
+
       gameArray: ["apple", "kiwi", "banana", "peach"],
-      indexFruits: [],
+      
+      answerArray: [],
+      userArray: [],
+
       buttonDisabled: false,
     }
 
@@ -21,51 +25,51 @@ class Game extends Component {
   // 3 - User click
   // 4 - User continue/fail
   // 5 - Continue ? Two fruit selected : Game Over
-  handleGameStart() {
-    const { gameArray } = this.state;
+  handleGameLogic() {
+    const { gameArray, answerArray } = this.state;
+    const randomNumber = Math.floor(Math.random() * 4);
+
+    const randomFruit = gameArray[randomNumber];
 
     this.setState({
-      buttonDisabled: true,
+      userArray: [],
+      answerArray: [...answerArray, randomFruit],
     });
 
-    const randomIndex = Math.floor(Math.random() * 4);
-
-
 
     this.setState({
-      fruitSelected: gameArray[randomIndex]
+      fruitSelected: randomFruit,
     }, () => {
       setTimeout(() => {
         this.setState({
           fruitSelected: "",
-          buttonDisabled: false,
         });
       }, 1000)
-    })
-    
-  }
-
-  handleGameLogic() {
-    const { gameArray } = this.state;
-
-    const randomIndex = Math.floor(Math.random() * 4);
-
-    console.log(gameArray[randomIndex]);
-
-    let gameOver = false;
-
-    // while(!gameOver) {
-      console.log('antes do timeout')
-      setTimeout(() => {
-        console.log('dentro do timeout')
-      }, 1000);
-      console.log('depos do timeout')
-    // }
-
+    });
   }
 
   handleUserInput(fruit) {
-    
+    const { userArray } = this.state;
+
+    this.setState({
+      userArray: [...userArray, fruit],
+    }, () => {
+      const { 
+        userArray: newUserArray,
+        answerArray: newAnswerArray,
+      } = this.state;
+
+      if (newUserArray.length === newAnswerArray.length) {
+        if (newUserArray.every((fruit, index) => newAnswerArray[index] === fruit)) {
+          this.handleGameLogic();
+        } else {
+          this.setState({
+            userArray: [],
+            answerArray: [],
+          });
+        }
+      }
+    });
   }
 
   render() {
@@ -105,7 +109,7 @@ class Game extends Component {
         </div>
 
         <div className="cardContainer">
-          <button disabled={buttonDisabled} className="card game-start" onClick={() => this.handleGameStart()}> 
+          <button disabled={buttonDisabled} className="card game-start" onClick={() => this.handleGameLogic()}> 
             Start Game
           </button>
         </div>
